@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+enum Permission {
+  NONE
+  BASE
+  MEDIUM
+  HIGH
+}
+
+enum RoomStatus {
+  AVAILABLE
+  ACQUIRED
+}
+
+enum RoomType {
+  BASE
+  MEDIUM
+  HIGH
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELED
+}
+
+enum CardAccessRoomStatus {
+  ACTIVE
+  DEACTIVATED
+}
+
+enum CardAccessRoomWebhookStatus {
+  ACTIVE
+  DEACTIVATED
+}
+
+model User {
+  id       Int               @id @default(autoincrement())
+  uuid     String            @unique @default(uuid())
+  email    String            @unique
+  name     String
+  role     Role
+  cards    Card[]
+  bookings BookingSchedule[] @relation("UserBookings")
+}
+
+model Card {
+  id          Int              @id @default(autoincrement())
+  uuid        String           @unique
+  created_at  DateTime         @default(now())
+  user        User?            @relation(fields: [user_id], references: [id])
+  user_id     Int?
+  permissions Permission[]
+  room_access CardRoomAccess[]
+}
+
+model Room {
+  id          Int               @id @default(autoincrement())
+  uuid        String            @unique @default(uuid())
+  room_name   String
+  status      RoomStatus        @default(AVAILABLE)
+  type        RoomType          @default(BASE)
+  bookings    BookingSchedule[]
+  card_access CardRoomAccess[]
+}
+
+model BookingSchedule {
+  id          Int           @id @default(autoincrement())
+  uuid        String        @unique @default(uuid())
+  room        Room          @relation(fields: [room_id], references: [id])
+  room_id     Int
+  description String
+  start_time  DateTime
+  end_time    DateTime
+  created_by  Int
+  user        User          @relation("UserBookings", fields: [created_by], references: [id])
+  status      BookingStatus @default(CONFIRMED)
+}
+
+model CardRoomAccess {
+  id      Int                  @id @default(autoincrement())
+  uuid    String               @unique @default(uuid())
+  card    Card                 @relation(fields: [card_id], references: [id])
+  card_id Int
+  room    Room                 @relation(fields: [room_id], references: [id])
+  room_id Int
+  status  CardAccessRoomStatus @default(ACTIVE)
+
+  @@unique([card_id, room_id])
+}
+
+model CardAccessWebhook {
+  id         Int                         @id @default(autoincrement())
+  card_uuid  String
+  room_uuid  String
+  metadata   String
+  status     CardAccessRoomWebhookStatus @default(ACTIVE)
+  created_at DateTime                    @default(now())
+  expired_at DateTime                    @default(now())
+
+  @@unique([room_uuid, card_uuid])
+}

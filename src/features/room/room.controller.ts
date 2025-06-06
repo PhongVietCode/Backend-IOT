@@ -3,6 +3,7 @@ import { roomService } from './room.service';
 import { success } from '../../utils/response';
 import { CreateCardAccessSchema, CreateRoomSchema, CreateScheduleRoom, GetCardAccessSchema, GetRoomScheduleSchema, GetRoomSchema, UpdateCardAccessToRoom, UpdateRoomSchema, UpdateScheduleSchema } from './room.schema';
 import { BookingSchedule, BookingStatus, CardAccessRoomStatus, RoomStatus, RoomType } from '../../../generated/prisma';
+import { coreIOTService } from '../thirdparty/core-iot/coreiot.service';
 
 class RoomController {
   getAllRooms = async (req: Request, res: Response) => {

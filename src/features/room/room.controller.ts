@@ -39,11 +39,21 @@ class RoomController {
     console.log(cardAccess)
     res.json(success(cardAccess, "Get card access to room success"))
   }
+  getAllCardAccess = async (req: Request<GetRoomSchema>, res: Response) => {
+    const { roomUUID } = req.params
+    const cardAccess = await roomService.getAllCardAccess({ roomUUID })
+    res.json(success(cardAccess, "Get all card access to room success"))
+  }
   updateCardAccessToRoom = async (req: Request<GetCardAccessSchema, any, UpdateCardAccessToRoom>, res: Response) => {
     const { roomUUID, cardUUID } = req.params
     const { status } = req.body
     const cardAccess = await roomService.updateCardAccessToRoom({ roomUUID, cardUUID, status: status as CardAccessRoomStatus })
     res.json(success(cardAccess, "Update card access to room!"))
+  }
+  deleteCardAccessToRoom = async (req: Request<GetCardAccessSchema>, res: Response) => {
+    const { roomUUID, cardUUID } = req.params
+    await roomService.deleteCardAccessToRoom({ roomUUID, cardUUID})
+    res.json(success({}, "Update card access to room!"))
   }
   getCardAccessWebhook = async (req: Request<GetRoomSchema>, res: Response) => {
     const { roomUUID } = req.params

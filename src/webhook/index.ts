@@ -11,10 +11,10 @@ const webhookRouter = async (req: Request, res: Response) => {
         if (!room) {
             throw new BadRequestError("Room not found")
         }
-        const card =  await cardRepository.getCardByUUID(cardUUID)
-        if (card) {
-            throw new BadRequestError("Card has been registered")
-        }
+        // const card =  await cardRepository.getCardByUUID(cardUUID)
+        // if (card) {
+        //     throw new BadRequestError("Card has been registered")
+        // }
         const existingWebhook = await roomRepository.getCardAccessToRoomWebhook(roomUUID, cardUUID)
         if (!existingWebhook) {
             await roomRepository.createRoomCardAccessWebhook(roomUUID, cardUUID, req.body)

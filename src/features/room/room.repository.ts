@@ -51,6 +51,20 @@ class RoomRepository {
       }
     })
   }
+  async getAllCardAccess(roomId: number) {
+    return orm.cardRoomAccess.findMany({
+      where: {
+        room_id: roomId,
+      },
+      include:{
+        card:{
+          select:{
+            uuid: true
+          }
+        }
+      }
+    })
+  }
 
   async updateCardAccessToRoom(roomId: number, cardId: number, status: CardAccessRoomStatus) {
     return orm.cardRoomAccess.update({
@@ -58,6 +72,13 @@ class RoomRepository {
         card_id_room_id: { card_id: cardId, room_id: roomId }
       },
       data: { status },
+    });
+  }
+  async deleteCardAccessToRoom(roomId: number, cardId: number) {
+    return orm.cardRoomAccess.delete({
+      where: {
+        card_id_room_id: { card_id: cardId, room_id: roomId }
+      },
     });
   }
   async getRoomCardAccessWebhook(roomUUID: string) {
@@ -76,7 +97,7 @@ class RoomRepository {
       },
     })
   }
-  async deleteCardAccessToRoom(roomUUID: string, cardUUID: string,) {
+  async deleteCardAccessToRoomWebHook(roomUUID: string, cardUUID: string,) {
     return orm.cardAccessWebhook.delete({
       where: {
         room_uuid_card_uuid: { room_uuid: roomUUID, card_uuid: cardUUID },

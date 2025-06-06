@@ -41,7 +41,7 @@ class RoomService {
       card = await cardRepository.createCard(['BASE'], cardUUID)
     }
     const cardAccess = await roomRepository.createCardAccessToRoom(room.id, card.id)
-    await roomRepository.deleteCardAccessToRoom(roomUUID, cardUUID)
+    await roomRepository.deleteCardAccessToRoomWebHook(roomUUID, cardUUID)
     return cardAccess
   }
   async getCardAccessToRoom({ roomUUID, cardUUID }: { roomUUID: string, cardUUID: string }) {
@@ -53,8 +53,14 @@ class RoomService {
     if (!card) {
       throw new BadRequestError("Card may not register by admin.")
     }
-    console.log(room, card)
     return roomRepository.getCardAccessToRoom(room.id, card.id);
+  }
+  async getAllCardAccess({ roomUUID }: { roomUUID: string }) {
+    const room = await roomRepository.getRoomByUUID(roomUUID);
+    if (!room) {
+      throw new BadRequestError("Cannot find room!");
+    }
+    return roomRepository.getAllCardAccess(room.id);
   }
   async updateCardAccessToRoom({ roomUUID, cardUUID, status }: { roomUUID: string, cardUUID: string, status: CardAccessRoomStatus }) {
     const room = await roomRepository.getRoomByUUID(roomUUID);
@@ -66,6 +72,17 @@ class RoomService {
       throw new BadRequestError("Card may not register by admin.")
     }
     return roomRepository.updateCardAccessToRoom(room.id, card.id, status);
+  }
+  async deleteCardAccessToRoom({ roomUUID, cardUUID }: { roomUUID: string, cardUUID: string }) {
+    const room = await roomRepository.getRoomByUUID(roomUUID);
+    if (!room) {
+      throw new BadRequestError("Cannot find room!");
+    }
+    const card = await cardRepository.getCardByUUID(cardUUID);
+    if (!card) {
+      throw new BadRequestError("Card may not register by admin.")
+    }
+    return roomRepository.deleteCardAccessToRoom(room.id, card.id);
   }
   async getRoomCardAccessWebhook({ roomUUID }: { roomUUID: string }) {
     const room = await roomRepository.getRoomByUUID(roomUUID);
